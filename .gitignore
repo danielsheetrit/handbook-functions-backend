@@ -67,5 +67,4 @@ node_modules/
 
 #credentials
 service-account.json
-
-dbschema.js
+web-key-credential.json
