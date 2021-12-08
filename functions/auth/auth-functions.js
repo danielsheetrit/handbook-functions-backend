@@ -62,7 +62,7 @@ const signup = async (req, res) => {
         userToAdd.createdAt = Date.now()
         await db
             .collection('users')
-            .doc()
+            .doc(userToAdd.userId)
             .set(userToAdd)
 
         //sending token back to client 
