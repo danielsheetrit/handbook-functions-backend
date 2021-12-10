@@ -30,7 +30,9 @@ const signup = async (req, res) => {
     if (isEmpty(userToAdd.username)) errors.username = 'Must not be empty.'
 
     if (Object.keys(errors).length !== 0) {
-        return res.status(400).json(errors)
+        return res
+            .status(400)
+            .json(errors)
     }
 
     try {
@@ -42,14 +44,18 @@ const signup = async (req, res) => {
                 .get()
 
         if (!userRecord.empty) {
-            return res.status(403).json({ message: 'username already in use' })
+            return res
+                .status(403)
+                .json({ error: 'Username already in use' })
         }
 
         //creating new user
-        const snapshot = await admin.auth().createUser({
-            email: userToAdd.email,
-            password: userToAdd.password
-        })
+        const snapshot = await admin
+            .auth()
+            .createUser({
+                email: userToAdd.email,
+                password: userToAdd.password
+            })
 
         //getting id token
         const token =
@@ -66,13 +72,20 @@ const signup = async (req, res) => {
             .set(userToAdd)
 
         //sending token back to client 
-        return res.status(201).json({ token })
+        return res
+            .status(201)
+            .json({ token })
+
     } catch (e) {
-        
+
         if (e.code === 'auth/email-already-exists') {
-            return res.status(403).json({ message: 'Email already in use' })
+            return res.
+                status(403)
+                .json({ error: 'Email already in use' })
         } else {
-            return res.status(500).json({ message: e.message })
+            return res
+                .status(500)
+                .json({ error: e.message })
         }
     }
 }
@@ -90,7 +103,9 @@ const login = async (req, res) => {
     if (isEmpty(userToAuth.password)) errors.password = 'Must not be empty.'
 
     if (Object.keys(errors).length !== 0) {
-        return res.status(400).json(errors)
+        return res
+            .status(400)
+            .json(errors)
     }
 
     //this property make the *idToken* readable, if its false
@@ -99,18 +114,28 @@ const login = async (req, res) => {
 
     try {
 
-        const authResult = await axios.post(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${webApiCredential.key}`, userToAuth)
+        const authResult =
+            await axios
+                .post(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=
+                ${webApiCredential.key}`, userToAuth)
 
         const token = authResult.data.idToken
 
-        return res.status(200).json({ token })
+        return res
+            .status(200)
+            .json({ token })
 
     } catch (e) {
 
         if (e.message === 'Request failed with status code 400') {
-            return res.status(403).json({ message: 'Worng email or password.' })
+            return res
+                .status(403)
+                .json({ error: 'Worng email or password.' })
         }
-        return res.status(500).json({ message: e.message })
+
+        return res
+            .status(500)
+            .json({ error: e.message })
     }
 }
 

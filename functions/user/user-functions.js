@@ -3,20 +3,22 @@ const { isEmpty } = require('../validators')
 const admin = require('firebase-admin')
 const db = admin.firestore()
 
-
 const getUserDetails = async (req, res) => {
 
     try {
 
-        const detailsSnapshot = await db
-            .doc(`/users/${req.user.uid}`)
-            .get()
+        const detailsSnapshot =
+            await db
+                .doc(`/users/${req.user.uid}`)
+                .get()
 
         if (!detailsSnapshot.exists) {
-            return res.status(404).json({ message: 'Document not found/exists' })
+            return res
+                .status(404)
+                .json({ error: 'User not found/exists' })
         }
 
-        let likesData = [];
+        let likesData = []
 
         const likesSnapshot = await db
             .collection('likes')
@@ -25,13 +27,18 @@ const getUserDetails = async (req, res) => {
 
         likesSnapshot.forEach(doc => likesData.push(doc.data()))
 
-        return res.status(200).json({
-            likes: likesData,
-            userDetails: detailsSnapshot.data()
-        })
+        return res
+            .status(200)
+            .json({
+                likes: likesData,
+                userDetails: detailsSnapshot.data()
+            })
 
     } catch (e) {
-        return res.status(500).json({ message: e.message })
+
+        return res
+            .status(500)
+            .json({ error: e.message })
     }
 }
 
@@ -40,7 +47,7 @@ const addUserDetails = async (req, res) => {
     const data = req.body
     let userDetails = {}
 
-    if (!isEmpty(data.bio.trim())) userDetails.bio = data.bio;
+    if (!isEmpty(data.bio.trim())) userDetails.bio = data.bio
 
     if (!isEmpty(data.website.trim())) {
 
@@ -54,7 +61,9 @@ const addUserDetails = async (req, res) => {
         } else userDetails.website = data.website
     }
 
-    if (!isEmpty(data.location.trim())) userDetails.location = data.location;
+    if (!isEmpty(data.location.trim())) {
+        userDetails.location = data.location
+    }
 
     try {
 
@@ -62,10 +71,15 @@ const addUserDetails = async (req, res) => {
             .doc(`/users/${req.user.uid}`)
             .update(userDetails)
 
-        return res.status(200).json({ message: 'Details added successfully' })
+        return res
+            .status(200)
+            .json({ message: 'Details added successfully' })
 
     } catch (e) {
-        return res.status(500).json({ message: e.message })
+
+        return res
+            .status(500)
+            .json({ error: e.message })
     }
 }
 

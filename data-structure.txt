@@ -1,18 +1,26 @@
-const db = {
-    screams: [
-        {
+
+screams: [
+    {
             userHandle: 'user',
             createdAt: 'November 30, 2021 at 6:08:03 PM UTC+3',
             body: 'this is the scream body',
             likeCount: 5,
             commmentsCount: 2
-        }
-    ]
-}
+    }
+]
 
+
+comments: [
+    {
+        username: xxx
+        screamId: xxx 
+        body: xxx
+        createdAt: 16246512564
+    }
+]
+
+//redux data
 const userDetails: {
-
-    //redux data
     credentials: {
         userId: 'sda5gh78e2mm55vv55glhj',
         email: 'user@gmail.com',
@@ -25,7 +33,7 @@ const userDetails: {
     },
     likes: [
         {
-            userId: '4t885bnas9w7juh1k3d9q7yuh5'
+            userId: '7t885bnas9w7juh1k3d9q7yuh5'
             username: 'user'
             screamId: '4t885bnas9w7juh1k3d9q7yuh5'
         }

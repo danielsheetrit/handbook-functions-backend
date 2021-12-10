@@ -8,7 +8,11 @@ admin.initializeApp({
 })
 
 //functions import
-const { getScreams, addScream } = require('./scream/scream-functions')
+const {
+    getScreams,
+    addScream,
+    getScream
+} = require('./scream/scream-functions')
 const { signup, login } = require('./auth/auth-functions')
 const { addUserDetails, getUserDetails } = require('./user/user-functions')
 
@@ -17,6 +21,7 @@ const authMiddleware = require('./auth/authMiddleware')
 
 //crud routes
 app.get('/screams', getScreams)
+app.get('/scream/:screamId', getScream)
 app.post('/scream', authMiddleware, addScream)
 
 //auth routes
