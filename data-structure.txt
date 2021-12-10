@@ -1,7 +1,5 @@
 const db = {
-
     screams: [
-
         {
             userHandle: 'user',
             createdAt: 'November 30, 2021 at 6:08:03 PM UTC+3',
@@ -9,7 +7,27 @@ const db = {
             likeCount: 5,
             commmentsCount: 2
         }
-
     ]
+}
 
+const userDetails: {
+
+    //redux data
+    credentials: {
+        userId: 'sda5gh78e2mm55vv55glhj',
+        email: 'user@gmail.com',
+        handle: 'user',
+        createdAt: '1628462168',
+        imageUrl: 'image/asdasd' TODO!!
+        bio: 'like sports',
+        website: 'https://user.com'
+        location: 'london'
+    },
+    likes: [
+        {
+            userId: '4t885bnas9w7juh1k3d9q7yuh5'
+            username: 'user'
+            screamId: '4t885bnas9w7juh1k3d9q7yuh5'
+        }
+    ]
 }

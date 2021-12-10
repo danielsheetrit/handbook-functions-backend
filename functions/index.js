@@ -10,7 +10,7 @@ admin.initializeApp({
 //functions import
 const { getScreams, addScream } = require('./scream/scream-functions')
 const { signup, login } = require('./auth/auth-functions')
-const { addUserDetails } = require('./user/user-functions')
+const { addUserDetails, getUserDetails } = require('./user/user-functions')
 
 //middlewares
 const authMiddleware = require('./auth/authMiddleware')
@@ -20,12 +20,13 @@ app.get('/screams', getScreams)
 app.post('/scream', authMiddleware, addScream)
 
 //auth routes
-app.post('/signup', signup)
-app.post('/login', login)
+app.post('/auth/signup', signup)
+app.post('/auth/login', login)
 
 //user routes
 // TODO: Upload image functions
-app.post('/user/add-details', authMiddleware, addUserDetails)
+app.post('/user', authMiddleware, addUserDetails)
+app.get('/user', authMiddleware, getUserDetails)
 
 exports.api =
     functions
