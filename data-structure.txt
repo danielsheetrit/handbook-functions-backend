@@ -12,6 +12,7 @@ screams: [
 
 comments: [
     {
+        userId: xxxx
         username: xxx
         screamId: xxx 
         body: xxx

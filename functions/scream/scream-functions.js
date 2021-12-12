@@ -101,6 +101,64 @@ const addScream = async (req, res) => {
     }
 }
 
+const removeScream = async (req, res) => {
+
+    const screamRef = db.doc(`/screams/${req.params.screamId}`)
+
+    try {
+        //checking if scream actual exists
+        const screamSnapshot = await screamRef.get()
+        if (!screamSnapshot.exists) {
+            return res
+                .status(404)
+                .json({ error: 'Scream not found' })
+        }
+
+        //validate if the client is the creator of the scream
+        if (screamSnapshot.data().userId !== req.user.uid) {
+            return res
+                .status(403)
+                .json({ error: 'Must be the owner of this Scream to remove it.' })
+        }
+
+        //delete the actual scream
+        await screamRef.delete()
+
+        //delete all likes
+        const screamLikesSnapshot =
+            await db
+                .collection('likes')
+                .where('screamId', '==', req.params.screamId)
+                .get()
+
+        screamLikesSnapshot.forEach(doc => {
+            doc.ref.delete()
+        })
+
+        //delete all comments
+        const screamCommentsSnapshot =
+            await db
+                .collection('comments')
+                .where('screamId', '==', req.params.screamId)
+                .get()
+
+        screamCommentsSnapshot.forEach(doc => {
+            doc.ref.delete()
+        })
+
+        return res
+            .status(200)
+            .json({ message: 'Scream removed successfully' })
+
+    } catch (e) {
+
+        console.error(e.code)
+        return res
+            .status(500)
+            .json({ error: e.message })
+    }
+}
+
 const commentOnScream = async (req, res) => {
 
     if (isEmpty(req.body.body)) {
@@ -134,10 +192,11 @@ const commentOnScream = async (req, res) => {
             .collection('comments')
             .add(comment)
 
-        await screamRef.update({
-            commentCount: screamSnapshot.data().commentCount ?
-                screamSnapshot.data().commentCount + 1 : 1
-        })
+        await screamRef
+            .update({
+                commentCount: (screamSnapshot.data().commentCount) ?
+                    screamSnapshot.data().commentCount + 1 : 1
+            })
 
         return res
             .status(201)
@@ -155,13 +214,59 @@ const commentOnScream = async (req, res) => {
     }
 }
 
-const likeScream = async (req, res) => {
+const removeComment = (req, res) => {
+
+    //creating Refs
+    const screamRef = db.doc(`/screams/${req.params.screamId}`)
+    const commentRef = db.doc(`/comments/${req.params.commentId}`)
 
     try {
-        //creating references
-        const screamRef = db.doc(`/screams/${req.params.screamId}`)
-        const likeRef = db.collection('likes')
+        //check if the scream is exsits
+        const screamSnapshot = await screamRef.get()
+        if (!screamSnapshot.exists) {
+            return res
+                .status(404)
+                .json({ error: 'Scream not found' })
+        }
 
+        //cheack if the comment exists and the client owner it.
+        const commentSnapshot =
+            await commentRef.get()
+
+        if (!commentSnapshot.exists) {
+            return res
+                .status(400)
+                .json({ error: 'Comment not found' })
+        }
+
+        await commentRef.delete()
+
+        await screamRef
+            .update({
+                commentCount: screamSnapshot.data().commentCount - 1
+            })
+
+        return res
+            .status(200)
+            .json({ message: 'Comment removed successfully' })
+
+    } catch (e) {
+
+        console.error(e.code)
+        return res
+            .status(500)
+            .json({ error: e.message })
+
+    }
+}
+
+const likeScream = async (req, res) => {
+
+    //creating references
+    const screamRef = db.doc(`/screams/${req.params.screamId}`)
+    const likeRef = db.collection('likes')
+
+    try {
         //Check if the Scream exists.
         const screamSnapshot =
             await screamRef
@@ -197,14 +302,68 @@ const likeScream = async (req, res) => {
             username: userDetails.data().username
         })
 
-        await screamRef.update({
-            likeCount: screamSnapshot.data().likeCount ?
-                screamSnapshot.data().likeCount + 1 : 1
-        })
+        await screamRef
+            .update({
+                likeCount: (screamSnapshot.data().likeCount) ?
+                    screamSnapshot.data().likeCount + 1 : 1
+            })
 
         return res
             .status(200)
             .json({ message: 'Like added successfully' })
+
+    } catch (e) {
+
+        console.error(e.code)
+        return res
+            .status(500)
+            .json({ error: e.message })
+    }
+}
+
+const unlikeScream = async (req, res) => {
+
+    //creating references
+    const screamRef = db.doc(`/screams/${req.params.screamId}`)
+    const likeRef = db.collection('likes')
+
+    try {
+        //Check if the Scream exists.
+        const screamSnapshot =
+            await screamRef
+                .get()
+
+        if (!screamSnapshot.exists) {
+            return res
+                .status(404)
+                .json({ error: 'Scream not found' })
+        }
+
+        // Check if the user like the scream before unlike.
+        const likeSnapshot =
+            await likeRef
+                .where('userId', '==', req.user.uid)
+                .where('screamId', '==', req.params.screamId)
+                .get()
+
+        if (!likeSnapshot.size) {
+            return res
+                .status(400)
+                .json({ error: 'Must be like before unlike' })
+        }
+
+        likeSnapshot.forEach(doc => {
+            doc.ref.delete()
+        })
+
+        await screamRef
+            .update({
+                likeCount: screamSnapshot.data().likeCount - 1
+            })
+
+        return res
+            .status(200)
+            .json({ message: 'Like delete successfully' })
 
     } catch (e) {
 
@@ -220,5 +379,8 @@ module.exports = {
     addScream,
     getScream,
     commentOnScream,
-    likeScream
+    removeComment,
+    likeScream,
+    unlikeScream,
+    removeScream
 }

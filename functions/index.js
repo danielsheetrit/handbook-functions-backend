@@ -19,7 +19,10 @@ const {
     addScream,
     getScream,
     commentOnScream,
-    likeScream
+    likeScream,
+    unlikeScream,
+    removeScream,
+    removeComment
 } = require('./scream/scream-functions')
 
 const {
@@ -39,8 +42,13 @@ const authMiddleware = require('./auth/authMiddleware')
 app.get('/screams', getScreams)
 app.get('/scream/:screamId', getScream)
 app.post('/scream', authMiddleware, addScream)
+app.delete('/scream/:screamId', authMiddleware, removeScream)
+
 app.post('/scream/:screamId/comment', authMiddleware, commentOnScream)
+app.delete('scream/:screamId/comment/:commentId', authMiddleware, removeComment)
+
 app.post('/scream/:screamId/like', authMiddleware, likeScream)
+app.delete('/scream/:screamId/unlike', authMiddleware, unlikeScream)
 
 //auth routes
 app.post('/auth/signup', signup)
